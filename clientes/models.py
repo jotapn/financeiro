@@ -86,12 +86,11 @@ class Cliente(models.Model):
     nome = models.CharField(max_length=255)
     documento = models.CharField(
         max_length=20,
-        blank=True,
-        null=True,
         help_text="CPF ou CNPJ (apenas números ou formatado).",
+        unique=True
     )
-    email = models.EmailField(blank=True, null=True)
-    telefone = models.CharField(max_length=20, blank=True, null=True)
+    email = models.EmailField(blank=True, default="")
+    telefone = models.CharField(max_length=20, blank=True, default="")
     ativo = models.BooleanField(default=True)
 
     criado_em = models.DateTimeField(auto_now_add=True)
@@ -129,12 +128,3 @@ class Cliente(models.Model):
         if self.documento:
             self.documento = re.sub(r"\D", "", self.documento)
         super().save(*args, **kwargs)
-
-
-from django.db import models
-
-class Clientess(models.Model):
-    nome = models.CharField(max_length=255)
-
-    def __str__(self):
-        return self.nome

@@ -24,10 +24,34 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-ef325_+zrm4$2)o#zt^k@l=ekc9&&h1se2&s*f0i8$0e#&hb=6'
+# Load SECRET_KEY from environment (dotenv is already loaded above).
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# Read DEBUG from environment and convert to boolean.
+def _str_to_bool(value: str | None) -> bool:
+    if value is None:
+        return False
+    return str(value).lower() in ("1", "true", "yes", "on")
+
+DEBUG = _str_to_bool(os.environ.get('DEBUG'))
+# Validate SECRET_KEY presence. Fail fast in non-development (DEBUG=False).
+if not SECRET_KEY:
+    if DEBUG:
+        # In development allow an explicit insecure default but warn loudly.
+        import warnings
+
+        warnings.warn(
+            "SECRET_KEY environment variable is not set. Using an insecure default SECRET_KEY for development. "
+            "Set SECRET_KEY in your .env or environment for production."
+        )
+        SECRET_KEY = 'insecure-development-key-change-me'
+    else:
+        raise RuntimeError(
+            "Missing required environment variable: SECRET_KEY.\n"
+            "Set SECRET_KEY in the environment (for example in a .env file).\n"
+            "Example: SECRET_KEY='django-insecure-<your-random-key>'"
+        )
 
 ALLOWED_HOSTS = []
 
@@ -79,16 +103,65 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": os.getenv("DB_ENGINE", "django.db.backends.postgresql"),
-        "HOST": os.getenv("DB_HOST", "localhost"),
-        "PORT": os.getenv("DB_PORT", "5432"),
-        "NAME": os.getenv("DB_NAME", "financeiro_murano"),
-        "USER": os.getenv("DB_USER", "postgres"),
-        "PASSWORD": os.getenv("DB_PASSWORD", "postgres"),
+# Database configuration - explicitly validate env vars to provide clear errors
+_required_db_keys = [
+    "DB_ENGINE",
+    "DB_HOST",
+    "DB_PORT",
+    "DB_NAME",
+    "DB_USER",
+    "DB_PASSWORD",
+]
+
+_missing_db = [k for k in _required_db_keys if not os.environ.get(k)]
+
+if _missing_db:
+    if DEBUG:
+        # Fall back to a local sqlite database in development to make running tests/dev easy.
+        import warnings
+
+        warnings.warn(
+            "Missing DB environment variables: %s. Falling back to sqlite for development.\n"
+            "To use Postgres/other DBs set these variables in your environment or .env.\n"
+            "Example values:\n"
+            "  DB_ENGINE=django.db.backends.postgresql\n"
+            "  DB_HOST=localhost\n"
+            "  DB_PORT=5432\n"
+            "  DB_NAME=financeiro\n"
+            "  DB_USER=postgres\n"
+            "  DB_PASSWORD=supersecret\n"
+            % (", ".join(_missing_db),)
+        )
+
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': BASE_DIR / 'db.sqlite3',
+            }
+        }
+    else:
+        raise RuntimeError(
+            "Missing required DB environment variables: %s.\n"
+            "Set the following environment variables before starting the app (examples shown):\n"
+            "  DB_ENGINE=django.db.backends.postgresql\n"
+            "  DB_HOST=localhost\n"
+            "  DB_PORT=5432\n"
+            "  DB_NAME=financeiro\n"
+            "  DB_USER=postgres\n"
+            "  DB_PASSWORD=supersecret\n"
+            % (", ".join(_missing_db),)
+        )
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': os.environ.get('DB_ENGINE'),
+            'HOST': os.environ.get('DB_HOST'),
+            'PORT': os.environ.get('DB_PORT'),
+            'NAME': os.environ.get('DB_NAME'),
+            'USER': os.environ.get('DB_USER'),
+            'PASSWORD': os.environ.get('DB_PASSWORD'),
+        }
     }
-}
 
 
 """DATABASES = {

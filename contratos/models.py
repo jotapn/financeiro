@@ -65,8 +65,11 @@ class Contrato(models.Model):
 
     def __str__(self):
         # Se não tiver nome, usa padrão Contrato {id} - {cliente}
-        return self.nome or f"Contrato {self.id} - {self.cliente.nome}"
-
+        if self.nome:
+            return self.nome
+        cliente_nome = self.cliente.nome if self.cliente_id else "sem cliente"
+        if self.id:
+            return f"Contrato {self.id} - {cliente_nome}"
     @property
     def vigente_hoje(self):
         """
@@ -153,4 +156,8 @@ class ContratoDocumento(models.Model):
         verbose_name_plural = "Documentos de contrato"
 
     def __str__(self):
-        return self.nome or f"Documento #{self.id} - {self.contrato}"
+        if self.nome:
+            return self.nome
+        if self.id:
+            return f"Documento #{self.id} - {self.contrato}"
+        return f"Documento (novo) - {self.contrato}"
