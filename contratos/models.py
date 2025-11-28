@@ -126,6 +126,15 @@ class ItemContrato(models.Model):
         return f"{self.servico.nome} ({self.tipo}) - {self.contrato}"
 
 
+def contrato_documento_upload_to(instance, filename):
+    """
+    Organiza uploads por contrato em contratos/documentos/<contrato_id>/<arquivo>.
+    Usa 'sem-contrato' como fallback para casos sem FK definida.
+    """
+    contrato_id = instance.contrato_id or "sem-contrato"
+    return f"contratos/documentos/{contrato_id}/{filename}"
+
+
 class ContratoDocumento(models.Model):
     """
     Documentos anexados a um contrato.
@@ -138,7 +147,7 @@ class ContratoDocumento(models.Model):
         related_name="documentos",
     )
     arquivo = models.FileField(
-        upload_to="contratos/%Y/%m/",
+        upload_to=contrato_documento_upload_to,
         validators=[FileExtensionValidator(["pdf", "jpg", "jpeg", "png"])],
         help_text="Envie o PDF assinado ou outro documento relacionado ao contrato.",
     )
