@@ -20,6 +20,12 @@ class Categoria(models.Model):
         verbose_name_plural = "Categorias"
 
     def __str__(self):
+        """
+        Category display name combining its name and type.
+        
+        Returns:
+            str: Formatted as "nome (tipo)".
+        """
         return f"{self.nome} ({self.tipo})"
 
 
@@ -34,6 +40,12 @@ class CentroCusto(models.Model):
         verbose_name_plural = "Centros de custo"
 
     def __str__(self):
+        """
+        Human-readable representation of the cost center.
+        
+        Returns:
+            The value of the `nome` field.
+        """
         return self.nome
 
 
@@ -65,6 +77,12 @@ class Banco(models.Model):
         verbose_name_plural = "Bancos"
 
     def __str__(self):
+        """
+        Represent the bank as "name (code)" when a code exists, otherwise as the name.
+        
+        Returns:
+            str: "nome (codigo)" if `codigo` is present, otherwise "nome".
+        """
         return f"{self.nome} ({self.codigo})" if self.codigo else self.nome
 
 
@@ -120,13 +138,21 @@ class ContaBancaria(models.Model):
         verbose_name_plural = "Contas bancárias"
 
     def __str__(self):
+        """
+        Return a human-readable representation of the bank account combining its name and its bank's name.
+        
+        Returns:
+            str: A string formatted as "nome - banco.nome", where `nome` is the account's name and `banco.nome` is the related bank's name.
+        """
         return f"{self.nome} - {self.banco.nome}"
 
     @property
     def saldo_atual(self):
         """
-        Calcula saldo atual com base nos lançamentos já pagos.
-        Entradas - Saídas + saldo_inicial.
+        Compute the account's current balance considering only transactions with situacao="PAGO".
+        
+        Returns:
+            Decimal: Current balance calculated as `saldo_inicial + sum(paid entries) - sum(paid exits)`.
         """
         entradas = self.lancamentos.filter(
             tipo="ENTRADA", situacao="PAGO"
@@ -243,15 +269,22 @@ class Lancamento(models.Model):
         ordering = ["-data", "-id"]
 
     def __str__(self):
+        """
+        Return a human-readable representation of the Lancamento combining its type, description, and value.
+        
+        Returns:
+            str: Formatted as "<tipo> - <descricao> - <valor>".
+        """
         return f"{self.tipo} - {self.descricao} - {self.valor}"
 
     @property
     def tipo_servico_contratado(self):
         """
-        Atalho útil: retorna RECORRENTE/ÚNICO se o lançamento estiver
-        associado a um ItemContrato; caso contrário, None.
+        Get the service type for the associated contract item, if one is linked.
+        
+        Returns:
+            `str` with value `"RECORRENTE"` or `"ÚNICO"` when an ItemContrato is associated, `None` otherwise.
         """
         if self.item_contrato:
             return self.item_contrato.tipo
         return None
-

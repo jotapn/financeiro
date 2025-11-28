@@ -26,6 +26,12 @@ class Servico(models.Model):
         verbose_name_plural = "Serviços"
 
     def __str__(self):
+        """
+        Provide a readable string representation of the service using its name.
+        
+        Returns:
+            str: The value of the `nome` field.
+        """
         return self.nome
 
 class Contrato(models.Model):
@@ -65,6 +71,12 @@ class Contrato(models.Model):
 
     def __str__(self):
         # Se não tiver nome, usa padrão Contrato {id} - {cliente}
+        """
+        Return the human-readable representation of the contract.
+        
+        Returns:
+            str: The contract's `nome` if set; otherwise `Contrato {id} - {cliente_name}` when the instance has an `id`. If the contract has no associated client, `cliente_name` will be `"sem cliente"`.
+        """
         if self.nome:
             return self.nome
         cliente_nome = self.cliente.nome if self.cliente_id else "sem cliente"
@@ -73,7 +85,13 @@ class Contrato(models.Model):
     @property
     def vigente_hoje(self):
         """
-        Exemplo de helper: verifica se o contrato está vigente hoje.
+        Determine whether the contract is active today.
+        
+        Checks the contract's `ativo` flag and whether today's date falls on or after `data_inicio`
+        and on or before `data_fim` if `data_fim` is set.
+        
+        Returns:
+            bool: `True` if the contract is active today, `False` otherwise.
         """
         from django.utils import timezone
         hoje = timezone.now().date()
@@ -123,6 +141,12 @@ class ItemContrato(models.Model):
         verbose_name_plural = "Itens de contrato"
 
     def __str__(self):
+        """
+        Return a human-readable representation of the contract item combining service name, type, and contract.
+        
+        Returns:
+            str: A string in the format "<service name> (<tipo>) - <contrato>" where `<service name>` is `servico.nome`, `<tipo>` is the item's `tipo` value, and `<contrato>` is the associated `Contrato`'s string representation.
+        """
         return f"{self.servico.nome} ({self.tipo}) - {self.contrato}"
 
 
@@ -156,6 +180,12 @@ class ContratoDocumento(models.Model):
         verbose_name_plural = "Documentos de contrato"
 
     def __str__(self):
+        """
+        Human-readable representation of the document.
+        
+        Returns:
+            str: The display name — `nome` if set; otherwise `"Documento #{id} - {contrato}"` when the instance has an `id`; otherwise `"Documento (novo) - {contrato}"`.
+        """
         if self.nome:
             return self.nome
         if self.id:
