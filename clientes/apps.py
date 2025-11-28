@@ -2,5 +2,4 @@ from django.apps import AppConfig
 
 class ClientesConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
-    name = "clientes"   # nome do módulo
-    # NÃO coloque 'label' aqui por enquanto
+    name = "clientes" 

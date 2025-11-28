@@ -133,6 +133,9 @@ celerybeat.pid
 
 # Environments
 .env
+.env.*
+!.env.example
+!.env.exemple
 .venv
 env/
 venv/
@@ -262,5 +265,9 @@ poetry.toml
 
 # LSP config files
 pyrightconfig.json
+
+# Contrato documents (keep folder only)
+contratos/documentos/
+!contratos/documentos/.gitkeep
 
 # End of https://www.toptal.com/developers/gitignore/api/python,django
