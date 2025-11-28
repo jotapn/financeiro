@@ -12,8 +12,15 @@ from django.core.exceptions import ValidationError
 
 def valida_cpf(cpf: str) -> bool:
     """
-    Validação de CPF apenas pela regra dos dígitos verificadores.
-    Não consulta Receita, apenas matemática.
+    Validate a Brazilian CPF number.
+    
+    Non-digit characters in the input are ignored. The function requires exactly 11 digits and rejects sequences where all digits are identical (e.g., '00000000000'). Validation is performed using the CPF check-digit rules.
+    
+    Parameters:
+        cpf (str): The CPF value to validate; may include punctuation or whitespace.
+    
+    Returns:
+        bool: `True` if the CPF is valid according to its check digits, `False` otherwise.
     """
     cpf = re.sub(r"\D", "", cpf or "")
 
@@ -25,6 +32,16 @@ def valida_cpf(cpf: str) -> bool:
         return False
 
     def calc_digito(cpf_slice, fator_inicial):
+        """
+        Compute a single CPF check digit using the modulus-11 weighting method.
+        
+        Parameters:
+            cpf_slice (str): Sequence of digits (as characters) used to calculate the check digit.
+            fator_inicial (int): Starting weight applied to the first digit of `cpf_slice`; each subsequent digit uses a weight decremented by 1.
+        
+        Returns:
+            str: The calculated check digit as a single-character string. Returns "0" when the modulus-11 remainder is less than 2, otherwise returns the string of (11 - remainder).
+        """
         total = 0
         fator = fator_inicial
         for dig in cpf_slice:
@@ -41,8 +58,15 @@ def valida_cpf(cpf: str) -> bool:
 
 def valida_cnpj(cnpj: str) -> bool:
     """
-    Validação de CNPJ apenas pela regra dos dígitos verificadores.
-    Não consulta Receita, apenas matemática.
+    Validate a Brazilian CNPJ using its check-digit rules.
+    
+    Normalizes the input by removing non-digit characters, rejects values that are not 14 digits or that consist of a repeated digit, and verifies the two check digits using the standard modulo-11 algorithm.
+    
+    Parameters:
+        cnpj (str): CNPJ string; may include punctuation (dots, slashes, hyphens) which will be ignored.
+    
+    Returns:
+        bool: True if the CNPJ's check digits are valid, False otherwise.
     """
     cnpj = re.sub(r"\D", "", cnpj or "")
 
@@ -54,6 +78,16 @@ def valida_cnpj(cnpj: str) -> bool:
         return False
 
     def calc_digito(cnpj_slice, pesos):
+        """
+        Compute the CNPJ check digit for a slice of digit characters using the provided weights.
+        
+        Parameters:
+            cnpj_slice (Iterable[str]): Sequence of digit characters to use for the calculation (e.g., the first 12 or 13 digits).
+            pesos (Iterable[int]): Sequence of integer weights to apply to each digit of `cnpj_slice`.
+        
+        Returns:
+            str: Single-character check digit: `"0"` if the computed remainder is less than 2, otherwise the decimal digit resulting from `11 - remainder`.
+        """
         total = sum(int(d) * p for d, p in zip(cnpj_slice, pesos))
         resto = total % 11
         return "0" if resto < 2 else str(11 - resto)
@@ -101,6 +135,12 @@ class Cliente(models.Model):
         verbose_name_plural = "Clientes"
 
     def __str__(self):
+        """
+        Provide the client's name for display.
+        
+        Returns:
+            The client's `nome` value used as the model's string representation.
+        """
         return self.nome
 
     def clean(self):
@@ -123,7 +163,9 @@ class Cliente(models.Model):
 
     def save(self, *args, **kwargs):
         """
-        Normaliza o documento para apenas dígitos antes de salvar.
+        Ensure the instance's `documento` contains only digits before saving.
+        
+        If `documento` is set, strip all non-digit characters and persist the normalized value.
         """
         if self.documento:
             self.documento = re.sub(r"\D", "", self.documento)

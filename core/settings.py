@@ -30,6 +30,15 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 # Read DEBUG from environment and convert to boolean.
 def _str_to_bool(value: str | None) -> bool:
+    """
+    Convert a string-like value to a boolean based on common truthy representations.
+    
+    Parameters:
+        value (str | None): The input to interpret; None is treated as false.
+    
+    Returns:
+        bool: `True` if `value` (case-insensitive) is one of "1", "true", "yes", or "on", `False` otherwise.
+    """
     if value is None:
         return False
     return str(value).lower() in ("1", "true", "yes", "on")
