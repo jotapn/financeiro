@@ -1,7 +1,29 @@
+from django import forms
 from django.contrib import admin
 from django.utils.html import format_html
 
 from .models import Banco, Categoria, CentroCusto, ContaBancaria, Lancamento
+
+
+class LancamentoAdminForm(forms.ModelForm):
+    class Meta:
+        model = Lancamento
+        fields = "__all__"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        contrato_id = self.data.get("contrato") or getattr(self.instance, "contrato_id", None)
+        tipo = self.data.get("tipo") or getattr(self.instance, "tipo", None)
+
+        if contrato_id:
+            self.fields["item_contrato"].queryset = self.fields["item_contrato"].queryset.filter(
+                contrato_id=contrato_id
+            )
+        else:
+            self.fields["item_contrato"].queryset = self.fields["item_contrato"].queryset.none()
+
+        if tipo:
+            self.fields["categoria"].queryset = self.fields["categoria"].queryset.filter(tipo=tipo)
 
 
 # --- ACOES EM MASSA ---
@@ -19,6 +41,7 @@ def marcar_como_pendente(modeladmin, request, queryset):
 
 @admin.register(Lancamento)
 class LancamentoAdmin(admin.ModelAdmin):
+    form = LancamentoAdminForm
     list_display = (
         'descricao',
         'data_vencimento',

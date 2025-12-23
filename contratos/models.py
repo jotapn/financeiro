@@ -70,6 +70,8 @@ class Contrato(models.Model):
         cliente_nome = self.cliente.nome if self.cliente_id else "sem cliente"
         if self.id:
             return f"Contrato {self.id} - {cliente_nome}"
+
+        return f"Contrato - {cliente_nome}"
     @property
     def vigente_hoje(self):
         """

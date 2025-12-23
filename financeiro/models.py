@@ -1,5 +1,9 @@
+from decimal import Decimal
+
+from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import Sum
+from django.db.models import Q, Sum
+from django.utils import timezone
 
 class Categoria(models.Model):
     """
@@ -130,10 +134,10 @@ class ContaBancaria(models.Model):
         """
         entradas = self.lancamentos.filter(
             tipo="ENTRADA", situacao="PAGO"
-        ).aggregate(total=Sum("valor"))["total"] or 0
+        ).aggregate(total=Sum("valor"))["total"] or Decimal("0")
         saidas = self.lancamentos.filter(
             tipo="SAIDA", situacao="PAGO"
-        ).aggregate(total=Sum("valor"))["total"] or 0
+        ).aggregate(total=Sum("valor"))["total"] or Decimal("0")
         return self.saldo_inicial + entradas - saidas
 
 
@@ -201,6 +205,12 @@ class Lancamento(models.Model):
     descricao = models.CharField(max_length=255)
     valor = models.DecimalField(max_digits=12, decimal_places=2)
 
+    competencia = models.DateField(
+        null=True,
+        blank=True,
+        help_text="Para recorrencias: primeiro dia do mes de referencia.",
+    )
+
     data = models.DateField(
         help_text="Data de competência ou da movimentação.",
     )
@@ -241,6 +251,44 @@ class Lancamento(models.Model):
         verbose_name = "Lançamento"
         verbose_name_plural = "Lançamentos"
         ordering = ["-data", "-id"]
+        constraints = [
+            models.UniqueConstraint(
+                condition=Q(item_contrato__isnull=False, competencia__isnull=False),
+                fields=["item_contrato", "competencia", "tipo"],
+                name="uniq_item_contrato_competencia_tipo",
+            ),
+        ]
+
+
+    def clean(self):
+        super().clean()
+        errors = {}
+        # Preenche vinculos a partir do contrato/ItemContrato quando possivel
+        if self.item_contrato and not self.contrato:
+            self.contrato = self.item_contrato.contrato
+        if self.contrato and not self.cliente:
+            self.cliente = self.contrato.cliente
+
+        if self.item_contrato and self.contrato and self.item_contrato.contrato_id != self.contrato_id:
+            errors["item_contrato"] = "Item do contrato nao pertence ao contrato selecionado."
+        if self.contrato and self.cliente and self.contrato.cliente_id != self.cliente_id:
+            errors["cliente"] = "Cliente precisa ser o mesmo do contrato."
+        if self.categoria_id and self.categoria.tipo != self.tipo:
+            errors["categoria"] = "Tipo do lancamento deve casar com o tipo da categoria."
+        if self.situacao == "PENDENTE" and not self.data_vencimento:
+            errors["data_vencimento"] = "Pendentes precisam de data de vencimento."
+        if self.situacao == "PAGO" and self.data_vencimento and self.data_vencimento > timezone.now().date():
+            errors["data_vencimento"] = "Nao marque como PAGO com vencimento futuro."
+        if errors:
+            raise ValidationError(errors)
+
+    def save(self, *args, **kwargs):
+        # Garante coerencia basica mesmo se full_clean nao for chamado
+        if self.item_contrato and not self.contrato:
+            self.contrato = self.item_contrato.contrato
+        if self.contrato and not self.cliente:
+            self.cliente = self.contrato.cliente
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.tipo} - {self.descricao} - {self.valor}"
@@ -254,4 +302,3 @@ class Lancamento(models.Model):
         if self.item_contrato:
             return self.item_contrato.tipo
         return None
-
