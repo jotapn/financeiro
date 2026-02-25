@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Perfil | Admin{% endblock %}
+
+{% block content %}
+  <section class="glass panel">
+    <div class="panel-header">
+      <div>
+        <h1>{% if object %}Editar perfil{% else %}Novo perfil{% endif %}</h1>
+        <p class="muted">Defina as permissões do grupo.</p>
+      </div>
+      <a class="button button-ghost" href="{% url 'usuarios:groups_list' %}">Voltar</a>
+    </div>
+
+    <form method="post" class="form">
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+        <div class="form-error">{{ form.non_field_errors }}</div>
+      {% endif %}
+
+      <div class="field">
+        <label class="label" for="{{ form.name.id_for_label }}">Nome</label>
+        {{ form.name }}
+        {{ form.name.errors }}
+      </div>
+
+      <div class="field">
+        <label class="label" for="{{ form.permissions.id_for_label }}">Permissões</label>
+        {{ form.permissions }}
+        {{ form.permissions.errors }}
+      </div>
+
+      <div class="actions">
+        <button class="button button-primary" type="submit">Salvar</button>
+      </div>
+    </form>
+  </section>
+{% endblock %}

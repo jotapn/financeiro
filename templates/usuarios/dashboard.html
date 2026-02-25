@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Admin | Financeiro Murano{% endblock %}
+
+{% block content %}
+  <section class="glass panel">
+    <div class="panel-header">
+      <div>
+        <h1>Administração</h1>
+        <p class="muted">Controle de usuários e permissões.</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="glass card">
+        <h3>Usuários</h3>
+        <p class="muted">Crie e gerencie quem acessa o sistema.</p>
+        <a class="button button-primary" href="{% url 'usuarios:users_list' %}">Gerenciar usuários</a>
+      </div>
+
+      <div class="glass card">
+        <h3>Perfis</h3>
+        <p class="muted">Defina permissões via grupos.</p>
+        <a class="button button-primary" href="{% url 'usuarios:groups_list' %}">Gerenciar perfis</a>
+      </div>
+    </div>
+  </section>
+{% endblock %}

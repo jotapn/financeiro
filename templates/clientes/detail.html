@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}{{ cliente.nome }} | Financeiro Murano{% endblock %}
+
+{% block content %}
+  <section class="glass panel">
+    <div class="panel-header">
+      <div>
+        <h1>{{ cliente.nome }}</h1>
+        <p class="muted">{{ cliente.get_tipo_pessoa_display }} · {{ cliente.documento }}</p>
+      </div>
+      <div class="panel-actions">
+        <a class="button button-ghost" href="{% url 'clientes:list' %}">Voltar</a>
+        {% if perms.clientes.change_cliente %}
+          <a class="button button-primary" href="{% url 'clientes:update' cliente.id %}">Editar</a>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="glass card">
+        <h3>Contato</h3>
+        <p><strong>Email:</strong> {{ cliente.email|default:"-" }}</p>
+        <p><strong>Telefone:</strong> {{ cliente.telefone|default:"-" }}</p>
+        <p><strong>Status:</strong> {% if cliente.ativo %}Ativo{% else %}Inativo{% endif %}</p>
+      </div>
+
+      <div class="glass card">
+        <h3>Contratos</h3>
+        {% if cliente.contratos.all|length %}
+          <ul class="list">
+            {% for contrato in cliente.contratos.all %}
+              <li>
+                {{ contrato }} · Início {{ contrato.data_inicio }}
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="muted">Nenhum contrato vinculado.</p>
+        {% endif %}
+      </div>
+
+      <div class="glass card full">
+        <h3>Lançamentos recentes</h3>
+        {% if cliente.lancamentos.all|length %}
+          <div class="table">
+            <div class="table-row table-head">
+              <div>Descrição</div>
+              <div>Data</div>
+              <div>Valor</div>
+              <div>Situação</div>
+            </div>
+            {% for lancamento in cliente.lancamentos.all %}
+              <div class="table-row">
+                <div>{{ lancamento.descricao }}</div>
+                <div>{{ lancamento.data }}</div>
+                <div>R$ {{ lancamento.valor }}</div>
+                <div>{{ lancamento.get_situacao_display }}</div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="muted">Nenhum lançamento vinculado.</p>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+{% endblock %}

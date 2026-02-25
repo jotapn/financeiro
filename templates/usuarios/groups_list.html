@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Perfis | Admin{% endblock %}
+
+{% block content %}
+  <section class="glass panel">
+    <div class="panel-header">
+      <div>
+        <h1>Perfis</h1>
+        <p class="muted">{{ grupos|length }} grupos</p>
+      </div>
+      {% if perms.auth.add_group %}
+        <a class="button button-primary" href="{% url 'usuarios:groups_create' %}">Novo perfil</a>
+      {% endif %}
+    </div>
+
+    <div class="table">
+      <div class="table-row table-head">
+        <div>Perfil</div>
+        <div>Permissões</div>
+        <div></div>
+      </div>
+      {% for grupo in grupos %}
+        <div class="table-row">
+          <div class="table-main">
+            <a class="link" href="{% url 'usuarios:groups_detail' grupo.id %}">{{ grupo.name }}</a>
+          </div>
+          <div>{{ grupo.permissions.count }}</div>
+          <div class="table-actions">
+            {% if perms.auth.change_group %}
+              <a class="button button-ghost" href="{% url 'usuarios:groups_update' grupo.id %}">Editar</a>
+            {% endif %}
+          </div>
+        </div>
+      {% empty %}
+        <div class="empty">
+          <p>Nenhum grupo encontrado.</p>
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+{% endblock %}

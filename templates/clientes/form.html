@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Cliente | Financeiro Murano{% endblock %}
+
+{% block content %}
+  <section class="glass panel">
+    <div class="panel-header">
+      <div>
+        <h1>{% if object %}Editar cliente{% else %}Novo cliente{% endif %}</h1>
+        <p class="muted">Dados principais e contato.</p>
+      </div>
+      <a class="button button-ghost" href="{% url 'clientes:list' %}">Voltar</a>
+    </div>
+
+    <form method="post" class="form grid-2">
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+        <div class="form-error full">{{ form.non_field_errors }}</div>
+      {% endif %}
+
+      <div class="field full">
+        <label class="label" for="{{ form.nome.id_for_label }}">Nome</label>
+        {{ form.nome }}
+        {{ form.nome.errors }}
+      </div>
+
+      <div class="field">
+        <label class="label" for="{{ form.tipo_pessoa.id_for_label }}">Tipo</label>
+        {{ form.tipo_pessoa }}
+        {{ form.tipo_pessoa.errors }}
+      </div>
+
+      <div class="field">
+        <label class="label" for="{{ form.documento.id_for_label }}">Documento</label>
+        {{ form.documento }}
+        {{ form.documento.errors }}
+      </div>
+
+      <div class="field">
+        <label class="label" for="{{ form.email.id_for_label }}">Email</label>
+        {{ form.email }}
+        {{ form.email.errors }}
+      </div>
+
+      <div class="field">
+        <label class="label" for="{{ form.telefone.id_for_label }}">Telefone</label>
+        {{ form.telefone }}
+        {{ form.telefone.errors }}
+      </div>
+
+      <div class="field checkbox-row">
+        {{ form.ativo }}
+        <label class="label" for="{{ form.ativo.id_for_label }}">Ativo</label>
+      </div>
+
+      <div class="actions full">
+        <button class="button button-primary" type="submit">Salvar</button>
+      </div>
+    </form>
+  </section>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Login | Financeiro Murano{% endblock %}
+
+{% block content %}
+  <section class="auth-grid">
+    <div class="glass panel auth-panel">
+      <h1>Bem-vindo de volta</h1>
+      <p class="muted">Entre para acessar seus clientes, contratos e lançamentos.</p>
+
+      <form method="post" class="form">
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+          <div class="form-error">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        <label class="label" for="{{ form.username.id_for_label }}">Usuário</label>
+        {{ form.username }}
+
+        <label class="label" for="{{ form.password.id_for_label }}">Senha</label>
+        {{ form.password }}
+
+        <button class="button button-primary" type="submit">Entrar</button>
+      </form>
+    </div>
+    <div class="glass panel auth-side">
+      <h2>Controle financeiro sem planilhas</h2>
+      <ul class="bullets">
+        <li>Cadastro rápido de clientes</li>
+        <li>Contratos recorrentes e pontuais</li>
+        <li>Livro caixa unificado</li>
+      </ul>
+    </div>
+  </section>
+{% endblock %}

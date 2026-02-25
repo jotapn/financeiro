@@ -1,0 +1,49 @@
+{% load static %}
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{% block title %}Financeiro Murano{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/app.css' %}" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://unpkg.com/htmx.org@1.9.12" defer></script>
+  </head>
+  <body hx-boost="true">
+    <div class="bg-orbs">
+      <span class="orb orb-1"></span>
+      <span class="orb orb-2"></span>
+      <span class="orb orb-3"></span>
+    </div>
+
+    <header class="topbar glass">
+      <div class="brand">
+        <div class="brand-mark"></div>
+        <div class="brand-text">
+          <div class="brand-title">Financeiro Murano</div>
+          <div class="brand-subtitle">controle inteligente</div>
+        </div>
+      </div>
+      <nav class="nav">
+        <a class="nav-link" href="/clientes/">Clientes</a>
+        <a class="nav-link" href="/contratos/">Contratos</a>
+        <a class="nav-link" href="/financeiro/">Financeiro</a>
+        <a class="nav-link" href="/admin/" hx-boost="false">Admin</a>
+        {% if user.is_authenticated %}
+          <a class="nav-link nav-cta" href="/logout/">Sair</a>
+        {% else %}
+          <a class="nav-link nav-cta" href="/login/">Entrar</a>
+        {% endif %}
+      </nav>
+    </header>
+
+    <main class="container">
+      {% block content %}{% endblock %}
+    </main>
+  </body>
+</html>

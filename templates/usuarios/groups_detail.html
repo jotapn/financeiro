@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}{{ grupo.name }} | Admin{% endblock %}
+
+{% block content %}
+  <section class="glass panel">
+    <div class="panel-header">
+      <div>
+        <h1>{{ grupo.name }}</h1>
+        <p class="muted">{{ grupo.permissions.count }} permissões</p>
+      </div>
+      <div class="panel-actions">
+        <a class="button button-ghost" href="{% url 'usuarios:groups_list' %}">Voltar</a>
+        {% if perms.auth.change_group %}
+          <a class="button button-primary" href="{% url 'usuarios:groups_update' grupo.id %}">Editar</a>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="glass card">
+      <h3>Permissões</h3>
+      {% if grupo.permissions.all|length %}
+        <ul class="list">
+          {% for perm in grupo.permissions.all %}
+            <li>{{ perm.name }}</li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="muted">Sem permissões atribuídas.</p>
+      {% endif %}
+    </div>
+  </section>
+{% endblock %}

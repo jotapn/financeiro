@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}{{ usuario.username }} | Admin{% endblock %}
+
+{% block content %}
+  <section class="glass panel">
+    <div class="panel-header">
+      <div>
+        <h1>{{ usuario.username }}</h1>
+        <p class="muted">{{ usuario.get_full_name|default:"-" }} · {{ usuario.email|default:"-" }}</p>
+      </div>
+      <div class="panel-actions">
+        <a class="button button-ghost" href="{% url 'usuarios:users_list' %}">Voltar</a>
+        {% if perms.auth.change_user %}
+          <a class="button button-primary" href="{% url 'usuarios:users_update' usuario.id %}">Editar</a>
+          <a class="button button-ghost" href="{% url 'usuarios:users_password' usuario.id %}">Alterar senha</a>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="glass card">
+        <h3>Status</h3>
+        <p>{% if usuario.is_active %}Ativo{% else %}Inativo{% endif %}</p>
+        <p><strong>Último login:</strong> {{ usuario.last_login|default:"-" }}</p>
+      </div>
+
+      <div class="glass card">
+        <h3>Perfis</h3>
+        {% if usuario.groups.all|length %}
+          <ul class="list">
+            {% for grupo in usuario.groups.all %}
+              <li>{{ grupo.name }}</li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="muted">Sem grupo atribuído.</p>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+{% endblock %}

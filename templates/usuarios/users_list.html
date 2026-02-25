@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Usuários | Admin{% endblock %}
+
+{% block content %}
+  <section class="glass panel">
+    <div class="panel-header">
+      <div>
+        <h1>Usuários</h1>
+        <p class="muted">{{ usuarios|length }} cadastrados</p>
+      </div>
+      {% if perms.auth.add_user %}
+        <a class="button button-primary" href="{% url 'usuarios:users_create' %}">Novo usuário</a>
+      {% endif %}
+    </div>
+
+    <div class="table">
+      <div class="table-row table-head">
+        <div>Usuário</div>
+        <div>Nome</div>
+        <div>Email</div>
+        <div>Status</div>
+        <div></div>
+      </div>
+      {% for usuario in usuarios %}
+        <div class="table-row">
+          <div class="table-main">
+            <a class="link" href="{% url 'usuarios:users_detail' usuario.id %}">{{ usuario.username }}</a>
+          </div>
+          <div>{{ usuario.get_full_name|default:"-" }}</div>
+          <div>{{ usuario.email|default:"-" }}</div>
+          <div>
+            <span class="pill {% if usuario.is_active %}pill-ok{% else %}pill-off{% endif %}">
+              {% if usuario.is_active %}Ativo{% else %}Inativo{% endif %}
+            </span>
+          </div>
+          <div class="table-actions">
+            {% if perms.auth.change_user %}
+              <a class="button button-ghost" href="{% url 'usuarios:users_update' usuario.id %}">Editar</a>
+            {% endif %}
+          </div>
+        </div>
+      {% empty %}
+        <div class="empty">
+          <p>Nenhum usuário encontrado.</p>
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+{% endblock %}

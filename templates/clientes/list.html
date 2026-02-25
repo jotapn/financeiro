@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Clientes | Financeiro Murano{% endblock %}
+
+{% block content %}
+  <section class="glass panel">
+    <div class="panel-header">
+      <div>
+        <h1>Clientes</h1>
+        <p class="muted">{{ clientes|length }} cadastrados</p>
+      </div>
+      {% if perms.clientes.add_cliente %}
+        <a class="button button-primary" href="{% url 'clientes:create' %}">Novo cliente</a>
+      {% endif %}
+    </div>
+
+    <div class="table">
+      <div class="table-row table-head">
+        <div>Nome</div>
+        <div>Tipo</div>
+        <div>Documento</div>
+        <div>Status</div>
+        <div></div>
+      </div>
+      {% for cliente in clientes %}
+        <div class="table-row">
+          <div class="table-main">
+            <a class="link" href="{% url 'clientes:detail' cliente.id %}">{{ cliente.nome }}</a>
+          </div>
+          <div>{{ cliente.get_tipo_pessoa_display }}</div>
+          <div>{{ cliente.documento }}</div>
+          <div>
+            <span class="pill {% if cliente.ativo %}pill-ok{% else %}pill-off{% endif %}">
+              {% if cliente.ativo %}Ativo{% else %}Inativo{% endif %}
+            </span>
+          </div>
+          <div class="table-actions">
+            {% if perms.clientes.change_cliente %}
+              <a class="button button-ghost" href="{% url 'clientes:update' cliente.id %}">Editar</a>
+            {% endif %}
+          </div>
+        </div>
+      {% empty %}
+        <div class="empty">
+          <p>Nenhum cliente encontrado.</p>
+          <a class="button button-primary" href="{% url 'clientes:create' %}">Criar primeiro cliente</a>
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+{% endblock %}

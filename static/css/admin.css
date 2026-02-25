@@ -1,0 +1,79 @@
+:root {
+  --admin-bg: rgba(15, 23, 42, 0.7);
+  --admin-panel: rgba(15, 23, 42, 0.6);
+  --admin-border: rgba(255, 255, 255, 0.16);
+  --admin-text: #eef2ff;
+  --admin-muted: rgba(226, 232, 240, 0.7);
+}
+
+body {
+  font-family: "Space Grotesk", sans-serif;
+  color: var(--admin-text);
+  background: radial-gradient(1200px 800px at 10% 10%, #1e3a8a 0%, transparent 60%),
+    radial-gradient(1000px 700px at 90% 20%, #0f766e 0%, transparent 60%),
+    linear-gradient(120deg, #0f172a, #1f2937);
+}
+
+#header {
+  background: var(--admin-bg);
+  border-bottom: 1px solid var(--admin-border);
+  backdrop-filter: blur(16px);
+}
+
+#header a:link,
+#header a:visited {
+  color: var(--admin-text);
+}
+
+#site-name .admin-brand {
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+#content {
+  background: var(--admin-panel);
+  border: 1px solid var(--admin-border);
+  border-radius: 18px;
+  padding: 24px;
+  backdrop-filter: blur(16px);
+}
+
+.module,
+.inline-group,
+.dashboard .module {
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid var(--admin-border);
+  border-radius: 14px;
+}
+
+.module h2,
+.module caption,
+.inline-group h2 {
+  background: transparent;
+  color: var(--text);
+}
+
+div.breadcrumbs {
+  background: transparent;
+  border-bottom: 1px solid var(--admin-border);
+  color: var(--admin-muted);
+}
+
+.submit-row {
+  background: transparent;
+  border-top: 1px solid var(--admin-border);
+}
+
+table {
+  background: transparent;
+}
+
+thead th {
+  background: rgba(15, 23, 42, 0.7);
+}
+
+tr:nth-child(odd),
+tr:nth-child(even) {
+  background: transparent;
+}
